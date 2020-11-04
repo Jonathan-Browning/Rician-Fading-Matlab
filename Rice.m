@@ -30,6 +30,11 @@ classdef Rice
             %ADDITIVESHADOWRICE Construct an instance of this class
             %   Assigning input values
             
+            % K must have a value entered
+            if isempty(K)
+               error('Error. \n%s','K must have a numeric value.');
+            end
+            
             % K must be positive valued and restricting to a maximum of 50
             if ~isnumeric(K)
                error('Error. \nK must be a number, not a %s.', class(K));
@@ -41,6 +46,11 @@ classdef Rice
          
             obj.K = K;
             
+            % r_hat_2 must have a value entered
+            if isempty(r_hat_2)
+               error('Error. \n%s','r_hat_2 must have a numeric value.');
+            end
+            
             % r_hat_2 must be greater than 0.5 and less than 2.5
             if ~isnumeric(r_hat_2)
                error('Error. \nr_hat_2 must be a number, not a %s.', class(K));
@@ -51,6 +61,11 @@ classdef Rice
             end
             
             obj.r_hat_2 = r_hat_2;
+            
+            % phi must have a value entered
+            if isempty(phi)
+               error('Error. \n%s','\phi must have a numeric value.');
+            end
             
             % phi is in the range -pi to pi
             if ~isnumeric(phi)
@@ -64,11 +79,11 @@ classdef Rice
             obj.phi = phi;
             
             % other calculated properties
-            obj.multipathFading = complexMultipathFading(obj);
-            obj.envelopeProbability = envelopePDF(obj);
-            obj.phaseProbability = phasePDF(obj);
-            [obj.xdataEnv, obj.ydataEnv] = envelopeDensity(obj);
-            [obj.xdataPh, obj.ydataPh] = phaseDensity(obj);
+            obj.multipathFading = complex_Multipath_Fading(obj);
+            obj.envelopeProbability = envelope_PDF(obj);
+            obj.phaseProbability = phase_PDF(obj);
+            [obj.xdataEnv, obj.ydataEnv] = envelope_Density(obj);
+            [obj.xdataPh, obj.ydataPh] = phase_Density(obj);
             
         end
     end
@@ -83,7 +98,7 @@ classdef Rice
 
         end
         
-        function [sigma] = scatteredComponent(obj)
+        function [sigma] = scattered_Component(obj)
             %scatteredComponent Calculates the power of the scattered 
             %signal component.    
             
@@ -91,22 +106,22 @@ classdef Rice
         
         end
         
-        function [gaussians] = generateGaussians(obj, mean, sigma) 
+        function [gaussians] = generate_Gaussians(obj, mean, sigma) 
             %generateGaussians Generates the Gaussian random variables 
             
             gaussians = normrnd(mean,sigma,[1,obj.NumSamples]);
         end
         
-        function [multipathFading] = complexMultipathFading(obj) 
+        function [multipathFading] = complex_Multipath_Fading(obj) 
             %complexMultipathFading Generates the Rician fading model 
             
             [p, q] = means(obj);
-            [sigma] = scatteredComponent(obj);
+            [sigma] = scattered_Component(obj);
             
-            multipathFading = generateGaussians(obj, p, sigma) + 1i.* generateGaussians(obj, q, sigma);
+            multipathFading = generate_Gaussians(obj, p, sigma) + 1i.* generate_Gaussians(obj, q, sigma);
         end    
         
-        function [eProbTheor] = envelopePDF(obj)
+        function [eProbTheor] = envelope_PDF(obj)
             %envelopePDF Calculates the theoretical envelope PDF
             
             eProbTheor = 2 .* (1+obj.K) .* obj.r ./ obj.r_hat_2 ...
@@ -114,7 +129,7 @@ classdef Rice
                 .* besseli(0, 2.*obj.r.*sqrt(obj.K.*(obj.K+1)./obj.r_hat_2));
         end
         
-        function [pProbTheor] = phasePDF(obj)
+        function [pProbTheor] = phase_PDF(obj)
             %envelopePDF Calculates the theoretical phase PDF
             
             pProbTheor = 1./(2*pi).*exp(-obj.K) .*(1 + (sqrt(4.*pi.*obj.K)...
@@ -122,7 +137,7 @@ classdef Rice
                 .* (1 - qfunc(sqrt(2.*obj.K).*cos(obj.theta-obj.phi))));
         end
         
-        function [xdataEnv, ydataEnv] = envelopeDensity(obj)
+        function [xdataEnv, ydataEnv] = envelope_Density(obj)
             %envelopeDensity Evaluates the envelope PDF
             R = sqrt((real(obj.multipathFading)).^(2) + (imag(obj.multipathFading)).^(2));
 
@@ -130,9 +145,9 @@ classdef Rice
             [ydataEnv, xdataEnv] = ecdfhist(f,x, 0:0.05:max(obj.r));
         end
         
-        function [xdataPh, ydataPh] = phaseDensity(obj)
+        function [xdataPh, ydataPh] = phase_Density(obj)
             %envelopeDensity Evaluates the envelope PDF
-            T = angle((real(obj.multipathFading)) + (imag(obj.multipathFading)));
+            T = angle((real(obj.multipathFading)) + (sqrt(-1)).*(imag(obj.multipathFading)));
 
             [f,x] = ecdf(T);
             [ydataPh, xdataPh] = ecdfhist(f,x, min(obj.theta)+0.03:0.06:max(obj.theta));

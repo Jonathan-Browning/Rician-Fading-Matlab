@@ -28,55 +28,11 @@ classdef Rice
     methods(Access = public)
         function obj = Rice(K,r_hat_2,phi)
             %ADDITIVESHADOWRICE Construct an instance of this class
+            
             %   Assigning input values
-            
-            % K must have a value entered
-            if isempty(K)
-               error('Error. \n%s','K must have a numeric value.');
-            end
-            
-            % K must be positive valued and restricting to a maximum of 50
-            if ~isnumeric(K)
-               error('Error. \nK must be a number, not a %s.', class(K));
-            end
-            
-            if K < 0 || K > 50
-               error('Error. \n%s','K must be greater than 0 and less than 50.');
-            end
-         
-            obj.K = K;
-            
-            % r_hat_2 must have a value entered
-            if isempty(r_hat_2)
-               error('Error. \n%s','r_hat_2 must have a numeric value.');
-            end
-            
-            % r_hat_2 must be greater than 0.5 and less than 2.5
-            if ~isnumeric(r_hat_2)
-               error('Error. \nr_hat_2 must be a number, not a %s.', class(K));
-            end
-            
-            if r_hat_2 < 0.5 || r_hat_2 > 2.5
-               error('Error. \n%s','r_hat_2 must be greater than 0.5 and less than 2.5.');
-            end
-            
-            obj.r_hat_2 = r_hat_2;
-            
-            % phi must have a value entered
-            if isempty(phi)
-               error('Error. \n%s','\phi must have a numeric value.');
-            end
-            
-            % phi is in the range -pi to pi
-            if ~isnumeric(phi)
-               error('Error. \nphi must be a number, not a %s.', class(K));
-            end
-            
-            if phi < -pi || phi > pi
-               error('Error. \n%s','phi must be between -pi and pi.');
-            end
-            
-            obj.phi = phi;
+            obj.K = input_Check(obj,K,'K',0,50);
+            obj.r_hat_2 = input_Check(obj,r_hat_2,'\hat{r}^2',0.5,2.5);
+            obj.phi = input_Check(obj,phi,'\phi',-pi,pi);
             
             % other calculated properties
             obj.multipathFading = complex_Multipath_Fading(obj);
@@ -89,6 +45,26 @@ classdef Rice
     end
     
     methods(Access = private)
+        
+        function data = input_Check(obj, data, name, lower, upper) 
+            % intput_Check checks the user inputs and throws errors
+            
+            % checks if input is empty
+            if isempty(data)
+                error(strcat(name,' must be a numeric input'));
+            end
+            
+            % inputs must be a number
+            if ~isnumeric(data)
+               error(strcat(name,' must be a number, not a %s.', class(data)));
+            end
+            
+            % input must be within the range
+            if data < lower || data > upper
+               error(strcat(name,' must be in the range [',num2str(lower),', ',num2str(upper),'].'));
+            end
+        end
+        
         function [p, q] = means(obj)
             %means Calculates the means of the complex Gaussians 
             %representing the in-phase and quadrature components.
@@ -99,7 +75,7 @@ classdef Rice
         end
         
         function [sigma] = scattered_Component(obj)
-            %scatteredComponent Calculates the power of the scattered 
+            %scattered_Component Calculates the power of the scattered 
             %signal component.    
             
             sigma = sqrt(obj.r_hat_2 ./(2 * (1 + obj.K)));
@@ -107,13 +83,13 @@ classdef Rice
         end
         
         function [gaussians] = generate_Gaussians(obj, mean, sigma) 
-            %generateGaussians Generates the Gaussian random variables 
+            %generate_Gaussians Generates the Gaussian random variables 
             
             gaussians = normrnd(mean,sigma,[1,obj.NumSamples]);
         end
         
         function [multipathFading] = complex_Multipath_Fading(obj) 
-            %complexMultipathFading Generates the Rician fading model 
+            %complex_MultipathFading Generates the Rician fading model 
             
             [p, q] = means(obj);
             [sigma] = scattered_Component(obj);
@@ -122,7 +98,7 @@ classdef Rice
         end    
         
         function [eProbTheor] = envelope_PDF(obj)
-            %envelopePDF Calculates the theoretical envelope PDF
+            %envelope_PDF Calculates the theoretical envelope PDF
             
             eProbTheor = 2 .* (1+obj.K) .* obj.r ./ obj.r_hat_2 ...
                 .* exp(-obj.K - ((1+obj.K).*obj.r.^2 ./ obj.r_hat_2))...
@@ -130,7 +106,7 @@ classdef Rice
         end
         
         function [pProbTheor] = phase_PDF(obj)
-            %envelopePDF Calculates the theoretical phase PDF
+            %envelope_PDF Calculates the theoretical phase PDF
             
             pProbTheor = 1./(2*pi).*exp(-obj.K) .*(1 + (sqrt(4.*pi.*obj.K)...
                 .* exp(obj.K.*(cos(obj.theta-obj.phi)).^2) .* cos(obj.theta-obj.phi))...
@@ -138,7 +114,7 @@ classdef Rice
         end
         
         function [xdataEnv, ydataEnv] = envelope_Density(obj)
-            %envelopeDensity Evaluates the envelope PDF
+            %envelope_Density Evaluates the envelope PDF
             R = sqrt((real(obj.multipathFading)).^(2) + (imag(obj.multipathFading)).^(2));
 
             [f,x] = ecdf(R);
@@ -146,7 +122,7 @@ classdef Rice
         end
         
         function [xdataPh, ydataPh] = phase_Density(obj)
-            %envelopeDensity Evaluates the envelope PDF
+            %envelope_Density Evaluates the envelope PDF
             T = angle((real(obj.multipathFading)) + (sqrt(-1)).*(imag(obj.multipathFading)));
 
             [f,x] = ecdf(T);

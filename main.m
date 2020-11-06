@@ -117,7 +117,13 @@ phi = str2num(get(handles.edit5, 'string'));
 
 % creating and instance of the class and timing it's creation
 tic;
-s = Rice(K,r_hat_2,phi);
+try
+    s = Rice(K,r_hat_2,phi);
+catch Error % error handling and display but still allows program to contiue 
+    errorMessage = sprintf('Error Message:\n%s', Error.message);
+    uiwait(errordlg(errorMessage));
+    return
+end
 tend = toc;
 
 % update execution time

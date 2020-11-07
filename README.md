@@ -1,12 +1,16 @@
 # Rice-Fading-Matlab
 The Rician fading model implemented in Matlab and was created using Matlab 2018a.
-Plots the theoretical and simulated, envelope and phase porbability density functions (PDFs)
+Plots the theoretical and simulated, envelope and phase porbability density functions (PDFs).
 
 The Rician fading model describes the small-scale fading ocurring between and transmitter and receiver antenna pair, where a scattered and dominant signal components exist.
 A special case of this model is Rayleigh fading, when only a scattered signal component exists. This is represented by K = 0.
 
 Run main.m to start the GUI if Matlab is already installed.
 Alternatively if Matlab isn't installed, can run the installer from the build folder, which requires an internet connection to download the required files.
+
+The input K accepts values in the range 0 to 50.
+The input \hat_r^{2} accepts values in the range 0.5 to 2.5.
+The input \phi accepts values in the range -pi to pi.
 
 When running the program the intial window appears:
 

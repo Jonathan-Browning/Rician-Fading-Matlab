@@ -12,7 +12,7 @@ When running the program the intial window appears:
 
 ![ScreenShot](https://raw.github.com/Jonathan-Browning/Rician-Fading-Matlab/main/docs/window.png)
 
-Entering values for the Rician K factor, the root mean sqaure of the signal (\hat{r}^2), and \phi the phase parameter:
+Entering values for the Rician K factor, the root mean sqaure of the signal \hat{r} (take the input as the squared value), and \phi the phase parameter:
 
 ![ScreenShot](https://raw.github.com/Jonathan-Browning/Rician-Fading-Matlab/main/docs/inputs.png)
 

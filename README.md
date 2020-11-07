@@ -9,7 +9,7 @@ Run main.m to start the GUI if Matlab is already installed.
 Alternatively if Matlab isn't installed, can run the installer from the build folder, which requires an internet connection to download the required files.
 
 The input K accepts values in the range 0 to 50.
-The input \hat_r^{2} accepts values in the range 0.5 to 2.5.
+The input \hat{r}^{2} accepts values in the range 0.5 to 2.5.
 The input \phi accepts values in the range -pi to pi.
 
 When running the program the intial window appears:
